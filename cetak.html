@@ -1,344 +1,355 @@
 <!DOCTYPE html>
 <html>
 <head>
-<base target="_top">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="style.css">
-<style>
-/* Style Halaman Layar Utama */
-#daftarPemilih {
-  display: grid;
-  gap: 10px;
-  margin: 8px 0 16px;
-  max-height: 65vh;
-  overflow-y: auto;
-}
-#judulList {
-  font-weight: 700;
-  color: #1a3c6e;
-  margin: 12px 4px 0;
-  min-height: 20px;
-}
-.baris-pemilih {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 12px 14px;
-  background: #ffffff;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  transition: opacity 0.4s;
-}
-.baris-pemilih.hilang { opacity: 0; }
-.pemilih-info {
-  flex: 1;
-  min-width: 0;
-  word-break: break-word;
-  line-height: 1.5;
-}
-.aksi { flex-shrink: 0; text-align: center; }
-.btn-wa {
-  background-color: #25D366;
-  color: white;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 13px;
-  text-decoration: none;
-  display: inline-block;
-  text-align: center;
-  width: auto;
-  margin: 0;
-  min-height: 0;
-}
-.btn-wa:hover { background-color: #128C7E; }
-.btn-wa:disabled { background-color: #ccc; cursor: not-allowed; }
-.badge-terkirim {
-  display: block;
-  color: #155724;
-  background: #d4edda;
-  border-radius: 6px;
-  padding: 5px 10px;
-  font-size: 13px;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-.btn-ulang {
-  background: #999;
-  width: auto;
-  margin: 0;
-  padding: 6px 10px;
-  font-size: 12px;
-  min-height: 0;
-  min-width: 0;
-}
-.btn-ulang:hover { background: #777; }
-/* Baris tombol muat & pencarian */
-.baris-tombol { display: flex; gap: 8px; flex-wrap: wrap; }
-.baris-tombol button { flex: 1; width: auto; margin: 0; }
-.btn-sudah { background: #4b5563; }
-.btn-sudah:hover { background: #374151; }
-.baris-cari { margin-top: 10px; display: flex; gap: 8px; }
-.baris-cari input { flex: 1; min-width: 0; margin-bottom: 0; width: auto; }
-.baris-cari button { width: auto; margin: 0; }
-</style>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <?!= include('Style'); ?>
+  <style>
+    /* Style Halaman Layar Utama */
+    #daftarPemilih {
+      display: grid;
+      gap: 10px;
+      margin: 8px 0 16px;
+      max-height: 65vh;
+      overflow-y: auto;
+    }
+    #judulList { font-weight: 700; color: #1a3c6e; margin: 12px 4px 0; min-height: 20px; }
+    .baris-pemilih {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      background: #ffffff;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: opacity 0.4s;
+    }
+    .baris-pemilih.hilang { opacity: 0; }
+    .pemilih-info { flex: 1; min-width: 0; word-break: break-word; line-height: 1.5; }
+    .aksi { flex-shrink: 0; text-align: center; }
+    .btn-wa {
+      background-color: #25D366;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 13px;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      width: auto;
+      margin: 0;
+      min-height: 0;
+    }
+    .btn-wa:hover { background-color: #128C7E; }
+    .btn-wa:disabled { background-color: #ccc; cursor: not-allowed; }
+    .badge-terkirim {
+      display: block;
+      color: #155724;
+      background: #d4edda;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .btn-ulang {
+      background: #999;
+      width: auto;
+      margin: 0;
+      padding: 6px 10px;
+      font-size: 12px;
+      min-height: 0;
+      min-width: 0;
+    }
+    .btn-ulang:hover { background: #777; }
+    /* Baris tombol muat & pencarian: tombol tidak boleh full-width di sini */
+    .baris-tombol { display: flex; gap: 8px; flex-wrap: wrap; }
+    .baris-tombol button { flex: 1; width: auto; margin: 0; }
+    .btn-sudah { background: #4b5563; }
+    .btn-sudah:hover { background: #374151; }
+    .baris-cari { margin-top: 10px; display: flex; gap: 8px; }
+    .baris-cari input { flex: 1; min-width: 0; margin-bottom: 0; width: auto; }
+    .baris-cari button { width: auto; margin: 0; }
+  </style>
 </head>
 <body>
-<div class="container">
-<h1>Kirim Undangan PDF (WhatsApp)</h1>
+  <div class="container">
+    <h1>Kirim Undangan PDF (WhatsApp)</h1>
 
-<!-- Step 1: Input PIN Panitia -->
-<div id="pinBox" class="card">
-<label for="pinInput">Masukkan PIN Panitia:</label>
-<input type="password" id="pinInput" placeholder="PIN" />
-<button onclick="cekPin()">Masuk</button>
-<p id="pinError" class="error"></p>
-</div>
+    <!-- Step 1: Input PIN Panitia -->
+    <div id="pinBox" class="card">
+      <label for="pinInput">Masukkan PIN Panitia:</label>
+      <input type="password" id="pinInput" placeholder="PIN" />
+      <button onclick="cekPin()">Masuk</button>
+      <p id="pinError" class="error"></p>
+    </div>
 
-<!-- Step 2: Main Control -->
-<div id="mainBox" style="display:none;">
-<div class="card">
-<div class="baris-tombol">
-<button onclick="muatBelumDicetak()">Belum Dikirim</button>
-<button class="btn-sudah" onclick="muatSudahDicetak()">Sudah Dikirim</button>
-</div>
-<div class="baris-cari">
-<input type="text" id="searchInput" placeholder="Cari NIK / Nama..." />
-<button onclick="cariSatuan()" class="secondary">Cari</button>
-</div>
-</div>
+    <!-- Step 2: Main Control -->
+    <div id="mainBox" style="display:none;">
+      <div class="card">
+        <div class="baris-tombol">
+          <button onclick="muatBelumDicetak()">Belum Dikirim</button>
+          <button class="btn-sudah" onclick="muatSudahDicetak()">Sudah Dikirim</button>
+        </div>
+        <div class="baris-cari">
+          <input type="text" id="searchInput" placeholder="Cari NIK / Nama..." />
+          <button onclick="cariSatuan()" class="secondary">Cari</button>
+        </div>
+      </div>
 
-<!-- List Hasil -->
-<div id="judulList"></div>
-<div id="daftarPemilih"></div>
-</div>
+      <!-- List Hasil -->
+      <div id="judulList"></div>
+      <div id="daftarPemilih"></div>
+    </div>
 
-<p class="footer">
-<a href="https://script.google.com/macros/s/AKfycby7AdtwBY1N4fU_EynKRqPYEvyVZkb4MA5euTF47bxv1L70aYbmXpe4U1VZcaYp/exec">&larr; Kembali ke halaman Input</a>
-</p>
-</div>
+    <p class="footer">
+      <a href="https://finrw.github.io/Dpt/">&larr; Kembali ke halaman Input</a>
+    </p>
+  </div>
 
-<script>
-let PIN = '';
-let LIST = [];
-let MODE = 'belum'; // 'belum' | 'sudah' | 'cari'
-let JUDUL = '';
+  <script>
+    let PIN = '';
+    let LIST = [];      // data yang sedang ditampilkan
+    let MODE = 'belum'; // 'belum' | 'sudah' | 'cari'
 
-function esc(s) {
-  if (s == null) return '';
-  return String(s).replace(/[<&>]/g, function (c) {
-    return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c];
-  });
-}
-
-function alamatTeks(p) {
-  return (p.blok || '-') + (p.noBlok || '-') + '/' + (p.noRumah || '-');
-}
-
-function cekPin() {
-  const pin = document.getElementById('pinInput').value;
-  const err = document.getElementById('pinError');
-  err.innerText = 'Memeriksa PIN...';
-  google.script.run
-    .withSuccessHandler(function (res) {
-      if (res && res.valid) {
-        PIN = pin;
-        document.getElementById('pinBox').style.display = 'none';
-        document.getElementById('mainBox').style.display = 'block';
-        err.innerText = '';
-        muatBelumDicetak();
-      } else {
-        err.innerText = (res && res.message) || 'PIN Salah!';
-      }
-    })
-    .withFailureHandler(function (e) {
-      err.innerText = 'Error: ' + e.message;
-    })
-    .verifikasipin(pin, 'cetak');
-}
-
-function tampilkanMemuat(teks) {
-  document.getElementById('judulList').innerText = '';
-  document.getElementById('daftarPemilih').innerHTML = '<p>' + esc(teks) + '</p>';
-}
-
-function tampilkanError(e) {
-  document.getElementById('daftarPemilih').innerHTML = '<p class="error">Error: ' + esc(e && e.message) + '</p>';
-}
-
-function muatBelumDicetak() {
-  MODE = 'belum';
-  tampilkanMemuat('Memuat data...');
-  google.script.run
-    .withSuccessHandler(function (data) {
-      tampilkanDaftar(data || [], 'Belum dikirim');
-    })
-    .withFailureHandler(tampilkanError)
-    .getDaftarBelumDicetak(PIN);
-}
-
-function muatSudahDicetak() {
-  MODE = 'sudah';
-  tampilkanMemuat('Memuat data...');
-  google.script.run
-    .withSuccessHandler(function (data) {
-      tampilkanDaftar(data || [], 'Sudah dikirim');
-    })
-    .withFailureHandler(tampilkanError)
-    .getDaftarSudahDicetak(PIN);
-}
-
-function cariSatuan() {
-  const keyword = document.getElementById('searchInput').value;
-  if (!keyword.trim()) return;
-  MODE = 'cari';
-  tampilkanMemuat('Mencari...');
-  google.script.run
-    .withSuccessHandler(function (data) {
-      tampilkanDaftar(data || [], 'Hasil pencarian');
-    })
-    .withFailureHandler(tampilkanError)
-    .cariPemilih(PIN, keyword);
-}
-
-function perbaruiJudul() {
-  const jumlah = document.querySelectorAll('.baris-pemilih').length;
-  document.getElementById('judulList').innerText = JUDUL + ': ' + jumlah + ' orang';
-}
-
-function aksiHtml(p, idx) {
-  if (p.sudahDicetak === true) {
-    return '<span class="badge-terkirim">Terkirim</span>' +
-           '<button class="btn-ulang" id="btn-' + idx + '" onclick="prosesKirimWA(' + idx + ')">Kirim Ulang</button>';
-  }
-  return '<button class="btn-wa" id="btn-' + idx + '" onclick="prosesKirimWA(' + idx + ')">Buat PDF &amp; Kirim</button>';
-}
-
-function tampilkanDaftar(list, judul) {
-  LIST = list || [];
-  JUDUL = judul;
-  const div = document.getElementById('daftarPemilih');
-  div.innerHTML = '';
-  if (LIST.length === 0) {
-    document.getElementById('judulList').innerText = judul;
-    div.innerHTML = '<p>' + (MODE === 'belum' ? 'Semua undangan sudah dikirim.' : 'Data tidak ditemukan.') + '</p>';
-    return;
-  }
-  LIST.forEach(function (p, idx) {
-    if (MODE === 'belum') p.sudahDicetak = false;
-    if (MODE === 'sudah') p.sudahDicetak = true;
-    const item = document.createElement('div');
-    item.className = 'baris-pemilih';
-    item.id = 'row-' + idx;
-    item.innerHTML =
-      '<div class="pemilih-info">' +
-      '<strong>' + esc(p.nama) + '</strong><br/>' +
-      '<small>NIK: ' + esc(p.nik || '-') + '</small><br/>' +
-      '<small>No. DPT: ' + esc(p.no || '-') + '</small> | ' +
-      '<small>Blok/Rumah: ' + esc(alamatTeks(p)) + '</small><br/>' +
-      '<small>WA: ' + esc(p.noWhatsapp || '-') + '</small>' +
-      '</div>' +
-      '<div class="aksi" id="action-area-' + idx + '">' + aksiHtml(p, idx) + '</div>';
-    div.appendChild(item);
-  });
-  perbaruiJudul();
-}
-
-function formatNomorWA(noHP) {
-  if (!noHP) return '';
-  let cleaned = String(noHP).replace(/\D/g, '');
-  if (cleaned.startsWith('0')) {
-    cleaned = '62' + cleaned.substring(1);
-  }
-  return cleaned;
-}
-
-function prosesKirimWA(idx) {
-  const pemilih = LIST[idx];
-  if (!pemilih) return;
-  const btn = document.getElementById('btn-' + idx);
-  const teksAsli = btn ? btn.innerText : '';
-  if (btn) {
-    btn.disabled = true;
-    btn.innerText = 'Membuat PDF...';
-  }
-  
-  google.script.run
-    .withSuccessHandler(function (res) {
-      if (res && res.success) {
-        const noFormatted = formatNomorWA(pemilih.noWhatsapp);
-        const baris = [
-          '*SURAT UNDANGAN PEMILIHAN KETUA RW 016*',
-          'Yth. Bapak/Ibu/Saudara/i: *' + res.nama + '*',
-          'Berikut kami lampirkan dokumen Surat Undangan Resmi Anda dalam bentuk PDF.',
-          'Silakan unduh melalui link berikut: ' + res.pdfUrl,
-          'Mohon hadir pada pelaksanaan pemungutan suara dengan menunjukkan Surat Undangan ini (di HP/cetak) serta membawa KTP Fisik.',
-          '',
-          'Terima Kasih,',
-          '*Panitia Pemilihan RW 016*'
-        ];
-        const pesan = baris.join('\n');
-        const waUrl = 'https://api.whatsapp.com/send?phone=' + noFormatted + '&text=' + encodeURIComponent(pesan);
-        
-        const actionArea = document.getElementById('action-area-' + idx);
-        if (actionArea) {
-          actionArea.innerHTML = '<a href="' + waUrl + '" target="_blank" rel="noopener" class="btn-wa" style="background-color: #128C7E;" onclick="tandaiTerkirim(' + idx + ')">Buka WhatsApp &amp; Kirim</a>';
-        }
-      } else {
-        alert('Gagal: ' + ((res && res.message) || 'Terjadi kesalahan.'));
-        if (btn) {
-          btn.disabled = false;
-          btn.innerText = teksAsli;
-        }
-      }
-    })
-    .withFailureHandler(function (err) {
-      alert('Error: ' + err.message);
-      if (btn) {
-        btn.disabled = false;
-        btn.innerText = teksAsli;
-      }
-    })
-    .kirimUndanganPdfPerWarga(PIN, pemilih.nik);
-}
-
-function tandaiTerkirim(idx) {
-  const p = LIST[idx];
-  if (!p) return;
-  
-  google.script.run
-    .withFailureHandler(function(e) {
-      alert('Gagal menandai terkirim: ' + e.message);
-    })
-    .tandaiSudahDicetak(PIN, p.nik);
-  
-  p.sudahDicetak = true;
-  
-  setTimeout(function() {
-    const row = document.getElementById('row-' + idx);
-    if (!row) return;
-    if (MODE === 'belum') {
-      row.classList.add('hilang');
-      setTimeout(function () {
-        row.remove();
-        perbaruiJudul();
-        if (document.querySelectorAll('.baris-pemilih').length === 0) {
-          document.getElementById('daftarPemilih').innerHTML = '<p>Semua undangan sudah dikirim.</p>';
-        }
-      }, 400);
-    } else {
-      const area = document.getElementById('action-area-' + idx);
-      if (area) {
-        area.innerHTML = '<span class="badge-terkirim">Terkirim</span>' +
-                         '<button class="btn-ulang" id="btn-' + idx + '" onclick="prosesKirimWA(' + idx + ')">Kirim Ulang</button>';
-      }
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
     }
-  }, 700);
-}
-</script>
+
+    // Contoh hasil: Blok C, No Blok 8, No Rumah 8 -> "C8/8"
+    function alamatTeks(p) {
+      return (p.blok || '-') + (p.noBlok || '') + '/' + (p.noRumah || '-');
+    }
+
+    function cekPin() {
+      const pin = document.getElementById('pinInput').value;
+      const err = document.getElementById('pinError');
+      err.innerText = 'Memeriksa PIN...';
+      google.script.run
+        .withSuccessHandler(function (res) {
+          if (res && res.valid) {
+            PIN = pin;
+            document.getElementById('pinBox').style.display = 'none';
+            document.getElementById('mainBox').style.display = 'block';
+            err.innerText = '';
+            muatBelumDicetak();
+          } else {
+            err.innerText = (res && res.message) || 'PIN Salah!';
+          }
+        })
+        .withFailureHandler(function (e) {
+          err.innerText = 'Error: ' + e.message;
+        })
+        .verifikasiPin(pin, 'cetak');
+    }
+
+    function tampilkanMemuat(teks) {
+      document.getElementById('judulList').innerText = '';
+      document.getElementById('daftarPemilih').innerHTML = '<p>' + esc(teks) + '</p>';
+    }
+
+    function tampilkanError(e) {
+      document.getElementById('daftarPemilih').innerHTML =
+        '<p class="error">Error: ' + esc(e && e.message) + '</p>';
+    }
+
+    function muatBelumDicetak() {
+      MODE = 'belum';
+      tampilkanMemuat('Memuat data...');
+      google.script.run
+        .withSuccessHandler(function (data) {
+          tampilkanDaftar(data || [], 'Belum dikirim');
+        })
+        .withFailureHandler(tampilkanError)
+        .getDaftarBelumDicetak(PIN);
+    }
+
+    function muatSudahDicetak() {
+      MODE = 'sudah';
+      tampilkanMemuat('Memuat data...');
+      google.script.run
+        .withSuccessHandler(function (data) {
+          tampilkanDaftar(data || [], 'Sudah dikirim');
+        })
+        .withFailureHandler(tampilkanError)
+        .getDaftarSudahDicetak(PIN);
+    }
+
+    function cariSatuan() {
+      const keyword = document.getElementById('searchInput').value;
+      if (!keyword.trim()) return;
+      MODE = 'cari';
+      tampilkanMemuat('Mencari...');
+      google.script.run
+        .withSuccessHandler(function (data) {
+          tampilkanDaftar(data || [], 'Hasil pencarian');
+        })
+        .withFailureHandler(tampilkanError)
+        .cariPemilih(PIN, keyword);
+    }
+
+    function perbaruiJudul() {
+      const jumlah = document.querySelectorAll('.baris-pemilih').length;
+      document.getElementById('judulList').innerText = JUDUL + ': ' + jumlah + ' orang';
+    }
+
+    let JUDUL = '';
+
+    function aksiHtml(p, idx) {
+      if (p.sudahDicetak === true) {
+        return '<span class="badge-terkirim">✓ Terkirim</span>' +
+          '<button class="btn-ulang" id="btn-' + idx + '" onclick="prosesKirimWA(' + idx + ')">Kirim Ulang</button>';
+      }
+      return '<button class="btn-wa" id="btn-' + idx + '" onclick="prosesKirimWA(' + idx + ')">Buat PDF &amp; Kirim</button>';
+    }
+
+    function tampilkanDaftar(list, judul) {
+      LIST = list || [];
+      JUDUL = judul;
+      const div = document.getElementById('daftarPemilih');
+      div.innerHTML = '';
+
+      if (LIST.length === 0) {
+        document.getElementById('judulList').innerText = judul + ': 0 orang';
+        div.innerHTML = '<p>' + (MODE === 'belum'
+          ? 'Semua undangan sudah dikirim 🎉'
+          : 'Data tidak ditemukan.') + '</p>';
+        return;
+      }
+
+      LIST.forEach(function (p, idx) {
+        if (MODE === 'belum') p.sudahDicetak = false;
+        if (MODE === 'sudah') p.sudahDicetak = true;
+
+        const item = document.createElement('div');
+        item.className = 'baris-pemilih';
+        item.id = 'row-' + idx;
+        item.innerHTML =
+          '<div class="pemilih-info">' +
+            '<strong>' + esc(p.nama) + '</strong><br/>' +
+            '<small>NIK: ' + esc(p.nik || '-') + '</small><br/>' +
+            '<small>No. DPT: ' + esc(p.no || '-') +
+            ' | Blok/Rumah: ' + esc(alamatTeks(p)) +
+            ' | WA: ' + esc(p.noWhatsapp || '-') + '</small>' +
+          '</div>' +
+          '<div class="aksi" id="action-area-' + idx + '">' + aksiHtml(p, idx) + '</div>';
+        div.appendChild(item);
+      });
+      perbaruiJudul();
+    }
+
+    function formatNomorWA(noHP) {
+      if (!noHP) return '';
+      let cleaned = ('' + noHP).replace(/\D/g, '');
+      if (cleaned.startsWith('0')) {
+        cleaned = '62' + cleaned.substring(1);
+      }
+      return cleaned;
+    }
+
+    function prosesKirimWA(idx) {
+      const pemilih = LIST[idx];
+      if (!pemilih) return;
+      const btn = document.getElementById('btn-' + idx);
+      const teksAsli = btn ? btn.innerText : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Membuat PDF...';
+      }
+
+      // 1. Buat PDF di backend Drive
+      google.script.run
+        .withSuccessHandler(function (res) {
+          if (res && res.success) {
+            const noFormatted = formatNomorWA(res.noWa || pemilih.noWhatsapp);
+
+            // 2. Format Pesan WA
+            const baris = [
+              '*SURAT UNDANGAN PEMILIHAN KETUA RW 016*',
+              'Yth. Bapak/Ibu/Saudara/i: *' + res.nama + '*',
+              '',
+              'Berikut kami lampirkan dokumen Surat Undangan Resmi Anda dalam bentuk PDF.',
+              'Silakan unduh melalui link berikut:',
+              res.pdfUrl,
+              '',
+              'Mohon hadir pada pelaksanaan pemungutan suara dengan menunjukkan Surat Undangan ini (di HP/cetak) serta membawa KTP Fisik.',
+              '',
+              'Terima kasih.',
+              '*Panitia Pemilihan RW 016*'
+            ];
+            const pesan = baris.join('\n');
+            const waUrl = 'https://api.whatsapp.com/send?phone=' + noFormatted +
+              '&text=' + encodeURIComponent(pesan);
+
+            // 3. Tombol Buka WhatsApp; saat diklik, ditandai "sudah dikirim"
+            const actionArea = document.getElementById('action-area-' + idx);
+            if (actionArea) {
+              actionArea.innerHTML =
+                '<a href="' + waUrl + '" target="_blank" rel="noopener" class="btn-wa" ' +
+                'style="background-color:#128C7E;" onclick="tandaiTerkirim(' + idx + ')">Buka WhatsApp &rarr;</a>';
+            }
+          } else {
+            alert('Gagal: ' + ((res && res.message) || 'Terjadi kesalahan.'));
+            if (btn) {
+              btn.disabled = false;
+              btn.innerText = teksAsli;
+            }
+          }
+        })
+        .withFailureHandler(function (err) {
+          alert('Error: ' + err.message);
+          if (btn) {
+            btn.disabled = false;
+            btn.innerText = teksAsli;
+          }
+        })
+        .kirimUndanganPdfPerWarga(PIN, pemilih.nik);
+    }
+
+    // Dipanggil saat tombol "Buka WhatsApp" diklik
+    function tandaiTerkirim(idx) {
+      const p = LIST[idx];
+      if (!p) return;
+
+      // Simpan status "sudah dikirim" di Sheet
+      google.script.run
+        .withFailureHandler(function (e) {
+          alert('Gagal menandai terkirim: ' + e.message);
+        })
+        .tandaiSudahDicetak(PIN, [p.nik]);
+
+      p.sudahDicetak = true;
+
+      // Beri jeda singkat supaya WhatsApp sempat terbuka dulu
+      setTimeout(function () {
+        const row = document.getElementById('row-' + idx);
+        if (!row) return;
+
+        if (MODE === 'belum') {
+          // Hilang dari daftar "belum dikirim"
+          row.classList.add('hilang');
+          setTimeout(function () {
+            row.remove();
+            perbaruiJudul();
+            if (document.querySelectorAll('.baris-pemilih').length === 0) {
+              document.getElementById('daftarPemilih').innerHTML =
+                '<p>Semua undangan sudah dikirim 🎉</p>';
+            }
+          }, 400);
+        } else {
+          // Mode cari / sudah dikirim: ubah jadi status "Terkirim"
+          const area = document.getElementById('action-area-' + idx);
+          if (area) area.innerHTML = aksiHtml(p, idx);
+        }
+      }, 700);
+    }
+  </script>
 </body>
 </html>
