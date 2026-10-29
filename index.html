@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a3c6e">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js"></script>
+  <style>
+    .container { max-width: 1000px; }
+    .tabel-wrap { overflow-x: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); max-height: 480px; overflow-y: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: 14px; }
+    th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; white-space: nowrap; }
+    th { background: #1a3c6e; color: #fff; position: sticky; top: 0; }
+    tr:nth-child(even) { background: #f7f9fc; }
+    .container { max-width: 1300px; }
+    #layout { display: block; }
+    .btn-edit { background: #f59e0b; width: auto; margin: 0; padding: 6px 10px; font-size: 13px; min-height: 0; min-width: 0; }
+    .btn-edit:hover { background: #d97706; }
+    #editBanner { display: none; background: #fff3cd; color: #664d03; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; font-weight: 600; }
+    #editBanner small { display: block; font-weight: 400; margin-top: 4px; }
+    #btnBatal { background: #999; }
+    tr.sedang-diedit td { background: #fff3cd !important; }
+    #btnKeForm {
+      display: none; position: fixed; right: 14px; bottom: 14px; z-index: 50;
+      width: auto; min-width: 0; border-radius: 24px; padding: 12px 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    /* Layar lebar: form di kiri (tetap/frozen), daftar di kanan (scroll sendiri) */
+    @media (min-width: 900px) {
+      #layout.aktif { display: grid; grid-template-columns: 380px 1fr; gap: 16px; align-items: start; }
+      #layout.aktif #formBox { position: sticky; top: 10px; max-height: calc(100vh - 20px); overflow-y: auto; }
+      #layout.aktif #listBox h1 { margin-top: 0; font-size: 20px; }
+      #layout.aktif .tabel-wrap { max-height: calc(100vh - 220px); }
+    }
+    /* HP: tombol melayang untuk balik ke form tanpa scroll panjang */
+    @media (max-width: 899px) {
+      #btnKeForm.tampil { display: block; }
+      .tabel-wrap { max-height: 60vh; }
+    }
+  </style>
+  <title>DPT RW - Input Pemilih</title>
+</head>
+<body>
+  <div class="container">
+    <h1>📝 Input Data Pemilih (Khusus Panitia)</h1>
+
+    <div id="pinBox" class="card">
+      <label for="pinInput">Masukkan PIN Panitia:</label>
+      <input type="password" id="pinInput" placeholder="PIN" />
+      <button onclick="cekPin()">Masuk</button>
+      <p id="pinError" class="error"></p>
+    </div>
+
+    <div id="layout">
+    <div id="formBox" class="card" style="display:none;">
+      <div id="editBanner"></div>
+      <label for="nikInput">NIK (16 digit):</label>
+      <input type="text" id="nikInput" maxlength="16" inputmode="numeric"
+        placeholder="Contoh: 3201xxxxxxxxxxxx"
+        oninput="this.value=this.value.replace(/\D/g,'')" />
+
+      <label for="namaInput">Nama Lengkap:</label>
+      <input type="text" id="namaInput" placeholder="Nama sesuai KTP" />
+
+      <label for="waInput">No WhatsApp:</label>
+      <input type="tel" id="waInput" inputmode="numeric"
+        placeholder="Contoh: 08123456789 atau 628123456789" />
+
+      <label for="blokInput">Blok (huruf kapital):</label>
+      <input type="text" id="blokInput" maxlength="3" placeholder="Contoh: C"
+        style="text-transform:uppercase"
+        oninput="this.value=this.value.toUpperCase().replace(/[^A-Z]/g,'')" />
+
+      <label for="noBlokInput">No Blok (angka):</label>
+      <input type="text" id="noBlokInput" inputmode="numeric" placeholder="Contoh: 5"
+        oninput="this.value=this.value.replace(/\D/g,'')" />
+
+      <label for="rumahInput">No Rumah:</label>
+      <input type="text" id="rumahInput" placeholder="Contoh: 12" />
+
+      <button onclick="daftarkan()" id="btnDaftar">Daftarkan</button>
+      <button onclick="batalEdit()" id="btnBatal" class="secondary" style="display:none;">Batal</button>
+      <p id="formMessage" class="message" style="display:none;"></p>
+    </div>
+
+    <div id="listBox" style="display:none;">
+      <h1>📋 Daftar Pemilih Terinput</h1>
+      <div class="card">
+        <input type="text" id="cari" placeholder="Cari nama / NIK / blok / no rumah..." oninput="saring()" />
+        <p id="total"></p>
+      </div>
+      <div class="tabel-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Aksi</th><th>No</th><th>NIK</th><th>Nama</th><th>No WhatsApp</th>
+              <th>Blok</th><th>No Blok</th><th>No Rumah</th>
+            </tr>
+          </thead>
+          <tbody id="isi"></tbody>
+        </table>
+      </div>
+    </div>
+    </div>
+
+    <button id="btnKeForm" onclick="window.scrollTo({top:0,behavior:'smooth'});document.getElementById('nikInput').focus({preventScroll:true});">⬆ Input</button>
+
+    <p class="footer">
+      <a href="cetak.html">Buka halaman Cetak Undangan &rarr;</a>
+    </p>
+  </div>
+
+  <script>
+    let PIN = '';
+
+    function cekPin() {
+      const pin = document.getElementById('pinInput').value.trim();
+      if (!pin) return;
+      document.getElementById('pinError').innerText = 'Memeriksa...';
+      google.script.run.withSuccessHandler(function (res) {
+        if (res.valid) {
+          PIN = pin;
+          document.getElementById('pinBox').style.display = 'none';
+          document.getElementById('formBox').style.display = 'block';
+          document.getElementById('listBox').style.display = 'block';
+          document.getElementById('layout').className = 'aktif';
+          document.getElementById('btnKeForm').className = 'tampil';
+          muatDaftar();
+        } else {
+          document.getElementById('pinError').innerText = res.message || 'PIN salah.';
+        }
+      }).withFailureHandler(function (err) {
+        document.getElementById('pinError').innerText = 'Error: ' + err.message;
+      }).verifikasiPin(pin, 'input');
+    }
+
+    // Selalu ubah nomor WA ke format internasional (62xxxxxxxxxx, tanpa 0 di depan)
+    // SEBELUM disimpan ke Sheet. Ini penting karena kalau disimpan dengan awalan 0,
+    // Google Sheets sering otomatis membacanya sebagai angka dan membuang 0 di depan.
+    function normalisasiNoWA(no) {
+      no = String(no || '').replace(/\D/g, ''); // buang semua yang bukan digit
+      if (!no) return '';
+      if (no.startsWith('62')) return no;
+      if (no.startsWith('0')) return '62' + no.slice(1);
+      if (no.startsWith('8')) return '62' + no;
+      return no;
+    }
+
+    function tampilPesan(teks, sukses) {
+      const msgBox = document.getElementById('formMessage');
+      msgBox.style.display = 'block';
+      msgBox.className = 'message ' + (sukses ? 'success' : 'error');
+      msgBox.innerText = teks;
+    }
+
+    let EDIT_NO = null; // null = mode daftar baru; angka = sedang mengedit pemilih bernomor itu
+
+    function kosongkanForm() {
+      ['nikInput', 'namaInput', 'waInput', 'blokInput', 'noBlokInput', 'rumahInput'].forEach(function (id) {
+        document.getElementById(id).value = '';
+      });
+    }
+
+    function mulaiEdit(no) {
+      const p = DATA.find(function (x) { return Number(x.no) === no; });
+      if (!p) return;
+      EDIT_NO = no;
+
+      document.getElementById('nikInput').value = p.nik || '';
+      document.getElementById('namaInput').value = p.nama || '';
+      document.getElementById('waInput').value = p.noWhatsapp || '';
+      document.getElementById('blokInput').value = p.blok || '';
+      document.getElementById('noBlokInput').value = p.noBlok || '';
+      document.getElementById('rumahInput').value = p.noRumah || '';
+
+      const banner = document.getElementById('editBanner');
+      banner.style.display = 'block';
+      banner.innerHTML = '✏️ Mengedit data No. ' + esc(p.no) + ' — ' + esc(p.nama) +
+        (p.sudahDicetak
+          ? '<small>⚠ Undangan orang ini sudah dikirim. Setelah disimpan, kirim ulang lewat halaman Cetak (tombol Kirim Ulang) supaya undangannya memakai data baru.</small>'
+          : '');
+
+      document.getElementById('btnDaftar').innerText = 'Simpan Perubahan';
+      document.getElementById('btnBatal').style.display = '';
+      document.getElementById('formMessage').style.display = 'none';
+
+      saring(); // tandai baris yang sedang diedit
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function batalEdit(tahanPesan) {
+      EDIT_NO = null;
+      kosongkanForm();
+      document.getElementById('editBanner').style.display = 'none';
+      document.getElementById('btnDaftar').innerText = 'Daftarkan';
+      document.getElementById('btnBatal').style.display = 'none';
+      if (tahanPesan !== true) document.getElementById('formMessage').style.display = 'none';
+      saring();
+    }
+
+    let DATA = [];
+
+    function muatDaftar() {
+      document.getElementById('total').innerText = 'Memuat data...';
+      google.script.run
+        .withSuccessHandler(function (data) {
+          DATA = data || [];
+          saring();
+        })
+        .withFailureHandler(function (e) {
+          document.getElementById('total').innerText = 'Error: ' + e.message;
+        })
+        .getSemuaPemilih(PIN, 'input');
+    }
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function tampil(list) {
+      document.getElementById('isi').innerHTML = list.map(function (p) {
+        return '<tr class="' + (Number(p.no) === EDIT_NO ? 'sedang-diedit' : '') + '">' +
+          '<td><button class="btn-edit" onclick="mulaiEdit(' + Number(p.no) + ')">✏️ Edit</button></td>' +
+          '<td>' + esc(p.no) + '</td><td>' + esc(p.nik) + '</td><td>' + esc(p.nama) +
+          '</td><td>' + esc(p.noWhatsapp) + '</td><td>' + esc(p.blok) +
+          '</td><td>' + esc(p.noBlok) + '</td><td>' + esc(p.noRumah) + '</td></tr>';
+      }).join('');
+      document.getElementById('total').innerText = 'Total: ' + list.length + ' pemilih' +
+        (list.length !== DATA.length ? ' (dari ' + DATA.length + ')' : '');
+    }
+
+    function saring() {
+      const k = document.getElementById('cari').value.toLowerCase();
+      tampil(DATA.filter(function (p) {
+        return (p.nik + ' ' + p.nama + ' ' + p.noWhatsapp + ' ' + p.blok + ' ' + p.noBlok + ' ' + p.noRumah)
+          .toLowerCase().indexOf(k) !== -1;
+      }));
+    }
+
+    function daftarkan() {
+      const nik = document.getElementById('nikInput').value.trim();
+      const nama = document.getElementById('namaInput').value.trim();
+      const waMentah = document.getElementById('waInput').value.trim();
+      const noWhatsapp = normalisasiNoWA(waMentah);
+      const blok = document.getElementById('blokInput').value.trim().toUpperCase();
+      const noBlok = document.getElementById('noBlokInput').value.trim();
+      const noRumah = document.getElementById('rumahInput').value.trim();
+
+      if (!/^\d{16}$/.test(nik)) {
+        tampilPesan('NIK harus 16 digit angka.', false);
+        return;
+      }
+      if (!nama) {
+        tampilPesan('Nama tidak boleh kosong.', false);
+        return;
+      }
+      if (!/^62\d{8,13}$/.test(noWhatsapp)) {
+        tampilPesan('No WhatsApp tidak valid (contoh: 08123456789 atau 628123456789).', false);
+        return;
+      }
+      if (!/^[A-Z]+$/.test(blok)) {
+        tampilPesan('Blok hanya boleh huruf kapital (A-Z).', false);
+        return;
+      }
+      if (!/^\d+$/.test(noBlok)) {
+        tampilPesan('No Blok hanya boleh angka.', false);
+        return;
+      }
+      if (!noRumah) {
+        tampilPesan('No Rumah tidak boleh kosong.', false);
+        return;
+      }
+
+      const btn = document.getElementById('btnDaftar');
+      const sedangEdit = EDIT_NO !== null;
+      const teksNormal = sedangEdit ? 'Simpan Perubahan' : 'Daftarkan';
+      btn.disabled = true;
+      btn.innerText = 'Menyimpan...';
+
+      const runner = google.script.run.withSuccessHandler(function (res) {
+        btn.disabled = false;
+        btn.innerText = teksNormal;
+        tampilPesan(res.message, res.success);
+
+        if (res.success) {
+          if (sedangEdit) {
+            batalEdit(true);
+          } else {
+            kosongkanForm();
+            document.getElementById('nikInput').focus();
+          }
+          muatDaftar();
+        }
+      }).withFailureHandler(function (err) {
+        btn.disabled = false;
+        btn.innerText = teksNormal;
+        tampilPesan('Error: ' + err.message, false);
+      });
+
+      if (sedangEdit) {
+        runner.ubahPemilih(PIN, EDIT_NO, nik, nama, noWhatsapp, blok, noBlok, noRumah);
+      } else {
+        runner.daftarkanPemilih(PIN, nik, nama, noWhatsapp, blok, noBlok, noRumah);
+      }
+    }
+  </script>
+</body>
+</html>
